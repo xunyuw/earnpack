@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+uwsgi -x config.xml &
+sleep 2
+/etc/init.d/nginx restart
