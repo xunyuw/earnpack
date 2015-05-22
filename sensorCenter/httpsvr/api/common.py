@@ -16,7 +16,7 @@ def format_datum_row(row):
                 oValue="%.2f"%(row["oV"]/100.0),
                 tValue="%.1f"%(row["tV"]/10.0),
                 hValue="%.1f"%(row["hV"]/10.0),
-                pValue="%.2f"%(row["pV"]/100.0),
+                pValue="%.1f"%(row["pV"]/100.0),
                 fValue="%.2f"%(row["fV"]/1000.0),
                 sValue=to_sV(str(row['rT'])),
                 rTime=str(row["rT"]),

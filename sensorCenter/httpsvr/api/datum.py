@@ -41,9 +41,13 @@ def getTagInfoByUser():
         return ResponseExt([], 401)
 
     cur = g.db.cursor(DictCursor)
-    query = 'select * from sensorDatum where TagID in \
-            (select TagID from sensors where UserID="%s") \
-            group by TagID'%(args['UserID'])
+    #query = 'select * from sensorDatum where TagID in \
+    #        (select TagID from sensors where UserID="%s") \
+    #        group by TagID'%(args['UserID'])
+    query = 'select * from (select * from sensorDatum ' \
+            'where TagID in (select TagID from sensors ' \
+            'where UserID=%s) order by rT desc limit 1) ' \
+            'as x group by TagID'%(args['UserID'])
     cur.execute(query)
     rows = cur.fetchall()
     res = [format_datum_row(row) for row in rows]
@@ -74,7 +78,7 @@ def getTagChartData():
         res = [dict(oValue="%.2f"%(row[0]/100.0),
                     tValue="%.2f"%(row[1]/10.0),
                     hValue="%.2f"%(row[2]/10.0),
-                    pValue="%.2f"%(row[3]/100.0),
+                    pValue="%.1f"%(row[3]/100.0),
                     fValue="%.2f"%(row[4]/1000.0),
                     Time=str(row[5])
                     ) \

@@ -123,18 +123,19 @@ def register():
     res = [dict(pwd=row["pwd"],name=row["name"]) for row in rows ]
 
     bExist = (True if len(res) > 0 else False)
-    if not bExist:
-        cur.execute('replace into users values(%s, %s, %s, "")',
+    #if not bExist:
+    cur.execute('replace into users values(%s, %s, %s, "")',
                 [args['UserID'].encode('utf-8'),
                  args['Pwd'].encode('utf-8'),
                  args['Name'].encode('utf-8')])
 
     cur.close()
+    g.db.commit()
     if not bExist:
-        g.db.commit()
-        return ResponseExt([{"Result":"1"}], 200)
-    else:
+        #g.db.commit()
         return ResponseExt([{"Result":"0"}], 200)
+    else:
+        return ResponseExt([{"Result":"1"}], 200)
 
 #/GetUserInfo?UserID=13501897143
 @api.route('/GetUserInfo', methods=['GET'])
@@ -158,7 +159,7 @@ def getUserInfo():
 @api.route('/SetUserUpdate', methods=['GET', 'PUT', 'POST'])
 def SetUserUpdate():
     args = request.args
-    if ('UserID' not in args) or ('Pwd' not in args) or ('Name' not in args):
+    if ('UserID' not in args):# or ('Pwd' not in args) or ('Name' not in args):
         return ResponseExt([{"Result":"1"}], 401)
 
     cur = g.db.cursor(DictCursor)
@@ -167,13 +168,18 @@ def SetUserUpdate():
     rows = cur.fetchall()
     res = [dict(pwd=row["pwd"],name=row["name"]) for row in rows ]
 
+    '''
     if len(res) > 0 \
             and (res[0]['pwd'] != args['Pwd'] \
             or res[0]['name'] != args['Name']):
+    '''
+    if len(res) > 0:
+        pwd = (res[0]['pwd'] if 'Pwd' not in args else args['Pwd'])
+        name = (res[0]['name'] if 'Name' not in args else args['Name'])
         cur.execute('update users set pwd=%s, name=%s where UserID=%s' ,
-                        [args['Pwd'].encode('utf-8'),
-                            args['Name'].encode('utf-8'),
-                            args['UserID'].encode('utf-8')])
+                        [pwd.encode('utf-8'),
+                         name.encode('utf-8'),
+                         args['UserID']])
     cur.close()
     g.db.commit()
 
