@@ -1,0 +1,3 @@
+   sudo cp config/site /etc/nginx/sites-available/
+   sudo ln -s /etc/nginx/sites-available/site /etc/nginx/sites-enabled/
+   sudo rm -f /etc/nginx/sites-enabled/default 

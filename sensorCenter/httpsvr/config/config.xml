@@ -1,0 +1,10 @@
+<uwsgi>
+     <pythonpath>/home/xouyang/workspace/orjan/project/yzz/httpsvr/</pythonpath>
+     <module>run</module>
+     <callable>app</callable>
+     <socket>0.0.0.0:5000</socket>
+     <master/>
+     <plugins>python</plugins>
+     <processes>4</processes>  
+     <memory-report/>
+</uwsgi>
