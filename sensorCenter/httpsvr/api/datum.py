@@ -75,11 +75,11 @@ def getTagChartData():
         print query
         cur.execute(query)
         rows = cur.fetchall()
-        res = [dict(oValue="%.2f"%(row[0]/100.0),
-                    tValue="%.2f"%(row[1]/10.0),
-                    hValue="%.2f"%(row[2]/10.0),
-                    pValue="%.1f"%(row[3]/100.0),
-                    fValue="%.2f"%(row[4]/1000.0),
+        res = [dict(oValue="%.2f"%(row[0]/100),
+                    tValue="%.2f"%(row[1]/10),
+                    hValue="%.2f"%(row[2]/10),
+                    pValue="%.1f"%(row[3]/100),
+                    fValue="%.2f"%(row[4]/1000),
                     Time=str(row[5])
                     ) \
                 for row in rows]
