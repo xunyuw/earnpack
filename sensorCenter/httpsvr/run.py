@@ -27,9 +27,15 @@ app.config.from_envvar('EHOME_SETTINGS', silent=True)
 app.register_blueprint(api.api, url_prefix='/ehome')
 
 
+
 @app.route('/')
 def show_entries():
-	return "welcome", 200
+    return "welcome", 200
+
 
 if __name__ == '__main__':
     app.run()
+
+#
+### EOF
+

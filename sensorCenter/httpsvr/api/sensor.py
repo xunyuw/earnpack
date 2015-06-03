@@ -48,7 +48,7 @@ def getTagList():
         return ResponseExt([], 401)
 
     cur = g.db.cursor(DictCursor)
-    query = 'select TagID from sensors where UserID=%s'%(args['UserID'])
+    query = 'select TagID from sensors where UserID="%s"'%(args['UserID'])
     print query
     cur.execute(query)
     rows = cur.fetchall()

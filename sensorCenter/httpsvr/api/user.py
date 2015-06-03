@@ -29,7 +29,7 @@ def getUserExist():
         return ResponseExt([{"Result":"0"}], 401)
 
     cur = g.db.cursor(DictCursor)
-    query = 'select pwd from users where UserID=%s'%(args['UserID'])
+    query = 'select pwd from users where UserID="%s"'%(args['UserID'])
     cur.execute(query)
     res = cur.fetchall()
     cur.close()
@@ -117,13 +117,12 @@ def register():
         return ResponseExt([{"Result":"0"}], 401)
 
     cur = g.db.cursor(DictCursor)
-    query = 'select pwd, name from users where UserID=%s'%(args['UserID'])
+    query = 'select pwd, name from users where UserID="%s"'%(args['UserID'])
     cur.execute(query)
     rows = cur.fetchall()
     res = [dict(pwd=row["pwd"],name=row["name"]) for row in rows ]
 
     bExist = (True if len(res) > 0 else False)
-    #if not bExist:
     cur.execute('replace into users values(%s, %s, %s, "")',
                 [args['UserID'].encode('utf-8'),
                  args['Pwd'].encode('utf-8'),
@@ -132,7 +131,6 @@ def register():
     cur.close()
     g.db.commit()
     if not bExist:
-        #g.db.commit()
         return ResponseExt([{"Result":"0"}], 200)
     else:
         return ResponseExt([{"Result":"1"}], 200)
@@ -145,7 +143,7 @@ def getUserInfo():
         return ResponseExt([{"Name":"null"}], 401)
 
     cur = g.db.cursor(DictCursor)
-    query = 'select name from users where UserID=%s'%(args['UserID'])
+    query = 'select name from users where UserID="%s"'%(args['UserID'])
     cur.execute(query)
     rows = cur.fetchall()
     cur.close()
@@ -163,7 +161,7 @@ def SetUserUpdate():
         return ResponseExt([{"Result":"1"}], 401)
 
     cur = g.db.cursor(DictCursor)
-    query = 'select pwd, name from users where UserID=%s'%(args['UserID'])
+    query = 'select pwd, name from users where UserID="%s"'%(args['UserID'])
     cur.execute(query)
     rows = cur.fetchall()
     res = [dict(pwd=row["pwd"],name=row["name"]) for row in rows ]
@@ -197,7 +195,7 @@ def GetLoginVerify():
         return ResponseExt([{"Result":"1"}], 401)
 
     cur = g.db.cursor(DictCursor)
-    query = 'select UserID from users where UserID=%s and pwd=%s'%(args['UserID'], args['PWD'])
+    query = 'select UserID from users where UserID="%s" and pwd="%s"'%(args['UserID'], args['PWD'])
     cur.execute(query)
     rows = cur.fetchall()
     cur.close()
@@ -215,9 +213,9 @@ def removeUser():
        return ResponseExt([{"Result":"1"}], 401)
 
     cur = g.db.cursor()
-    query = 'delete from users where UserID=%s'%(str(args['UserID']))
+    query = 'delete from users where UserID="%s"'%(str(args['UserID']))
     cur.execute(query)
-    query = 'delete from sensors where UserID=%s'%(str(args['UserID']))
+    query = 'delete from sensors where UserID="%s"'%(str(args['UserID']))
     cur.execute(query)
     cur.close()
     g.db.commit()
