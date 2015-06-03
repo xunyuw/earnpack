@@ -99,7 +99,7 @@ int CEzMysqlDB::insertRow(const string& tabName, const string& values)
 
     string cmd("INSERT INTO ");
     cmd = cmd + tabName + " VALUES" + values;
-    cout << cmd << endl;
+    //cout << cmd << endl;
     //mysql_query(conn, "INSERT INTO writers VALUES('Leo Tolstoy')")
     return mysql_real_query(conn_, cmd.c_str(), cmd.size());  
 }
