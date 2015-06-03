@@ -13,7 +13,7 @@ bool CDataHandle::storeDB(sDEVICE_REPORT* report)
     BYTE tag1 = (BYTE)report->sSensorInfo.cTagID[1];
     BYTE tag2 = (BYTE)report->sSensorInfo.cTagID[2];
     BYTE tag3 = (BYTE)report->sSensorInfo.cTagID[3];
-    snprintf(tagID, 16, "%X%X%X%X", tag0, tag1, tag2, tag3);
+    snprintf(tagID, 16, "%.2X%.2X%.2X%.2X", tag0, tag1, tag2, tag3);
     char rssi[12];
     snprintf(rssi, 12, "%X", (BYTE)report->sSensorInfo.cRSSI);
 
