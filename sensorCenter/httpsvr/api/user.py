@@ -233,5 +233,28 @@ def listUsers():
     users = [row['UserID'] for row in rows ]
     return ResponseExt(users, 200)
 
+
+
+##############################
+## IR
+#/GetUserIRInfo?UserID=13501897143&KeyID=1
+@api.route('/GetUserIRInfo', methods=['GET', 'PUT', 'POST'])
+def GetUserIRInfo():
+    args = request.args
+    if ('UserID' not in args):
+        return ResponseExt([], 401)
+
+    cur = g.db.cursor(DictCursor)
+    if ("KeyID" not in args):
+        query = 'select KeyID, SeqID from irInfo where UserID="%s" '%(args['UserID'])
+    else:
+        query = 'select KeyID, SeqID from irInfo where UserID="%s" and KeyID="%s" '%(args['UserID'],args['KeyID'])
+
+    cur.execute(query)
+    rows = cur.fetchall()
+    cur.close()
+    res = [dict(KeyID=row["KeyID"], SeqID=row["SeqID"]) for row in rows ]
+    return ResponseExt(res, 200)
+
 ##
 ## EOF

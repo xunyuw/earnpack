@@ -55,7 +55,6 @@ def getTagInfoByUser():
     return ResponseExt(res)
 
 
-
 #/GetTagChartData?TagID=5000002&bTime=2015-01-01%2010:00&eTime=2015-02-27%2011:00&avgTime=60
 @api.route('/GetTagChartData')
 def getTagChartData():
@@ -80,7 +79,8 @@ def getTagChartData():
                     hValue="%.2f"%(row[2]/10),
                     pValue="%.1f"%(row[3]/100),
                     fValue="%.2f"%(row[4]/1000),
-                    Time=str(row[5])
+                    Time=row[5].strftime('%H:%M\r\n%m-%d')
+                    #Time=str(row[5])
                     ) \
                 for row in rows]
         cur.close()
