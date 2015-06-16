@@ -31,3 +31,14 @@ CREATE TABLE IF NOT EXISTS `sensorDatum` (
     `fV`   smallint DEFAULT '0', 
     `rT`   TIMESTAMP not null
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='user info';
+
+DROP TABLE IF EXISTS `irInfo`;
+CREATE TABLE IF NOT EXISTS `irInfo` (
+    `UserID` char(16),
+    `TagID`  char(16),
+    `KeyID`  tinyint unsigned DEFAULT '0', 
+    `SeqNo`  smallint unsigned DEFAULT '0', 
+    `pktNum` tinyint unsigned DEFAULT '0',
+    `pktIdx` tinyint unsigned DEFAULT '0',
+    `data`   tinyblob
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='ir info';    
