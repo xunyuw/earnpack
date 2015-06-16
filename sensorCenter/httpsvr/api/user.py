@@ -246,14 +246,16 @@ def GetUserIRInfo():
 
     cur = g.db.cursor(DictCursor)
     if ("KeyID" not in args):
-        query = 'select KeyID, SeqID from irInfo where UserID="%s" '%(args['UserID'])
+        query = 'select KeyID, SeqNo from irInfo where UserID="%s" and pktNum=pktIdx '%(args['UserID'])
     else:
-        query = 'select KeyID, SeqID from irInfo where UserID="%s" and KeyID="%s" '%(args['UserID'],args['KeyID'])
+        query = 'select KeyID, SeqNo from irInfo where UserID="%s" and KeyID="%s" and pktNum=pktIdx '%(args['UserID'],args['KeyID'])
 
     cur.execute(query)
     rows = cur.fetchall()
     cur.close()
-    res = [dict(KeyID=row["KeyID"], SeqID=row["SeqID"]) for row in rows ]
+    res = [dict(KeyID=str(row["KeyID"]), SeqID=str(row["SeqNo"])) for row in rows ]
+    print "=========================="
+    print res
     return ResponseExt(res, 200)
 
 ##

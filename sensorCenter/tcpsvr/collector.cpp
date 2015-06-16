@@ -16,7 +16,7 @@
 #include "dataHandle.h"
 #include "logger.h"
 
-#define MAXLEN 65535
+#define MAXLEN 1024 
 #define PORT 5012
 
 using namespace std;
@@ -28,7 +28,6 @@ void recv_callback(struct ev_loop * loop, ev_io * w, int revent);
 void write_callback(struct ev_loop * loop, ev_io * w, int revent);
 
 std::auto_ptr<CDataHandle> pHandle;
-
 
 int main(int argc, char ** argv)
 {
@@ -142,11 +141,12 @@ void recv_callback(EV_P_ ev_io * w, int revents)
         if (ret > 0)
         {
             //printf("recv message: %d \n", ret);
-            pHandle->storeDB((sDEVICE_REPORT*) buffer);
+            //pHandle->storeDB((sDEVICE_REPORT*) buffer);
+            pHandle->recvData(w->fd, buffer, ret);
         }
         else if (ret == 0)
         {
-            //printf("remote socket closed! socket fd: %d\n", w -> fd);
+            pHandle->update_map4tagfd(w->fd);
             close(w -> fd);
             ev_io_stop(loop, w);
             free(w);
@@ -158,7 +158,7 @@ void recv_callback(EV_P_ ev_io * w, int revents)
                 continue;
             else
             {
-                //printf("ret: %d, close socket fd: %d\n", ret, w -> fd);
+                pHandle->update_map4tagfd(w->fd);
                 close(w -> fd);
                 ev_io_stop(loop, w);
                 free(w);
@@ -185,7 +185,8 @@ void write_callback(EV_P_ ev_io * w, int revents)
     ev_io_start(loop, w);
 }
 
-static int setnonblock(int fd) {
+static int setnonblock(int fd) 
+{
     int flags;
 
     flags = fcntl(fd, F_GETFL);

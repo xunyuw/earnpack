@@ -8,22 +8,23 @@ CC = g++
 
 INCDIR = .
 
-CFLAGS = -pipe -c -I$(INCDIR) -I/usr/local/include/mysql -I/usr/include/mysql -Wno-deprecated  \
+CFLAGS = -I$(INCDIR) -I/usr/local/include/mysql -I/usr/include/mysql \
 		 -L/usr/local/lib/mysql/ -L/usr/lib/mysql/ 
 
-LFLAGS =-std=c++11 -g -lev -lmysqlclient -lm -lz -lpthread -Wall -DMAIN_TEST -L/usr/local/lib/mysql/ \
-		 -L/usr/lib/mysql/ -L/usr/local/lib -I/usr/include/mysql
+LFLAGS = -std=c++11 -lev -lmysqlclient -Wall -DENABLE_LOGGER -L/usr/local/lib/mysql/ \
+		 -L/usr/lib/mysql/ -I/usr/include/mysql
 
-OBJS =  logger.cpp config.cpp dataHandle.cpp ezMysql.cpp collector.cpp
+OBJS = collector.cpp logger.cpp config.cpp dataHandle.cpp ezMysql.cpp 
 
 
 $(TARGET) : $(OBJS)
-	$(CC) -o $(TARGET) $(OBJS) $(LFLAGS) 
+	$(CC) -g -rdynamic $(OBJS) $(LFLAGS)  -o $(TARGET)
 
 $(SRCDIR)/%.cpp : $(INCDIR)/%.h
 
 %.o : $(SRCDIR)/%.cpp
-	$(CC) $(CFLAGS) -o $@ $<
+	#$(CC) $(CFLAGS) -o $@ $<
+	$(CC) $(CFLAGS) -g $@ $<
 	
 #rm -f *.o
 clean:

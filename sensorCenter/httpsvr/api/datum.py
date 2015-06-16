@@ -70,7 +70,7 @@ def getTagChartData():
         query = 'select avg(oV), avg(tV), avg(hV), avg(pV), avg(fV), rT from sensorDatum ' \
                 'where TagID = "%s" and rT >  "%s" and rT < "%s" ' \
                 'group by ROUND(UNIX_TIMESTAMP(rT) / %d) '\
-                %(args['TagID'], args['bTime'], args['eTime'], int(args['avgTime']) )
+                %(args['TagID'], args['bTime'], args['eTime'], int(args['avgTime'])*60 )
         print query
         cur.execute(query)
         rows = cur.fetchall()

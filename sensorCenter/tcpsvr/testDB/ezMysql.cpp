@@ -91,9 +91,6 @@ unsigned long CEzMysqlQ::get_ele_len(int idx)
 
 MYSQL_ROW CEzMysqlQ::fetchone()
 {
-    if (NULL == _res)
-        return NULL;
-
     return mysql_fetch_row(_res);
 }
 
@@ -274,7 +271,7 @@ int CEzMysqlDB::insertRow(const string& tabName, const string& values)
 
 
 
-#if 0 //BT
+#if 1 //BT
 
 typedef struct {
     char* tagID;
@@ -292,7 +289,8 @@ void ut()
     const char v[] = {0x01, 0x02, 0xa1, 0xb2};
     char to[128];
     cout << db.escape_string(to, v, 4) << endl;
-assert(true == q->execute("replace into irInfo values('18616808128', '11223344', 1, 102, 6, 1, '%s' ) ",
+    q->execute("delete from irInfo where UserID='18616808128' and TagID='11223344' and KeyID=1");
+assert(true == q->execute("insert into irInfo values('18616808128', '11223344', 2, 102, 6, 1, '%s' ) ",
                  to  ));
 
     assert(true == q->execute("select * from irInfo"));

@@ -1,8 +1,10 @@
 #include <time.h>  
-#include "logger.h"
 
-
+#include<sys/timeb.h>
+#include<time.h>
+#include <stdarg.h>
  
+#include "logger.h"
 // --------------------------------------
 // static members initialization
 // --------------------------------------
@@ -43,27 +45,53 @@ void Logger::Stop()
         instance.fileStream.close();
     }
 }
- 
-void Logger::Write(Priority priority, const string& message)
-{
-    if (instance.active && priority >= instance.minPriority)
-    {
-        // identify current output stream
-        ostream& stream
-            = instance.fileStream.is_open() ? instance.fileStream : std::cout;
- 
-        time_t nowtime;  
-        nowtime = time(NULL);
-        struct tm *local;  
-        local=localtime(&nowtime);
-        
 
-        stream  << asctime(local) << " "
-                << PRIORITY_NAMES[priority]
-                << ": "
-                << message
-                << endl;
-    }
+void Logger::get_time(char* const  szTime, const int nLen)
+{ 
+    struct timeb now;
+    struct tm   *time_now;
+
+    ftime(&now);
+    time_now = localtime(&now.time);
+    sprintf(szTime,"%.4d-%.2d-%.2d %.2d:%.2d:%.2d.%.3d",
+                    1900+ time_now->tm_year,
+                    1 + time_now->tm_mon,
+                    time_now->tm_yday,
+                    time_now->tm_hour,
+                    time_now->tm_min,
+                    time_now->tm_sec,
+                    now.millitm);  
 }
 
+void Logger::Write(Priority priority, const char* fmt, ...)
+{  
+#define SIZE_OF_BUF 2048
+#define SIZE_OF_TIME 24
+  
+    char szTime[SIZE_OF_TIME];
+  
+    va_list ap;
+    static char buf[SIZE_OF_BUF];
+    char *bptr = buf;
+  
+    va_start(ap, fmt);
+    vsprintf(bptr, fmt, ap);
+    va_end(ap);
 
+    instance.get_time(szTime, SIZE_OF_TIME);
+    ostream& stream
+        = instance.fileStream.is_open() ? instance.fileStream : std::cout;
+   
+    char szLog[512]={0};
+    snprintf(szLog, 512, "%s %-8s%s", szTime, PRIORITY_NAMES[priority].c_str(), buf);
+    stream << szLog << endl;
+    /*
+    stream << szTime << "  "
+           << PRIORITY_NAMES[priority] << "  "
+           << buf
+           << endl; 
+    */
+}
+
+//
+//// EOF

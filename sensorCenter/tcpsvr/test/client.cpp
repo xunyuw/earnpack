@@ -6,7 +6,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <iostream>
-#include "../dataHandle.h"
+//#include "../dataHandle.h"
+#include "../dev.h"
 
 using namespace std;
 
@@ -69,6 +70,7 @@ int main(int argc, char**argv)
     }
     cout << num << endl;
     delete report;
+    sleep(20);
     close(sockfd);
     return 0;
 /*
