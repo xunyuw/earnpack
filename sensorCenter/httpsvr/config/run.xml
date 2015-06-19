@@ -1,5 +1,5 @@
 <uwsgi>
-     <pythonpath>/home/xouyang/workspace/orjan/project/yzz/httpsvr/</pythonpath>
+    <pythonpath>/opt/ehome/httpsvr/</pythonpath>
      <module>run</module>
      <callable>app</callable>
      <socket>0.0.0.0:5000</socket>
@@ -7,4 +7,5 @@
      <plugins>python</plugins>
      <processes>4</processes>  
      <memory-report/>
+     <pidfile>/tmp/.uwsgi-run.pid</pidfile>
 </uwsgi>

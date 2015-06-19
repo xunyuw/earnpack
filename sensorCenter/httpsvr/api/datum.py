@@ -46,8 +46,9 @@ def getTagInfoByUser():
     #        group by TagID'%(args['UserID'])
     query = 'select * from (select * from sensorDatum ' \
             'where TagID in (select TagID from sensors ' \
-            'where UserID=%s) order by rT desc limit 1) ' \
+            'where UserID=%s) order by rT desc) ' \
             'as x group by TagID'%(args['UserID'])
+    #print query
     cur.execute(query)
     rows = cur.fetchall()
     res = [format_datum_row(row) for row in rows]

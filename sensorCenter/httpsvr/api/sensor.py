@@ -23,10 +23,10 @@ def hi_sensor():
 def userTagBind():
     args = request.args
     if ('UserID' not in args) or ("TagID" not in args) or ("Method" not in args):
-        return ResponseExt([{"Result":"0"}], 401)
+        return ResponseExt([{"Result":"1"}], 401)
 
     if (int(args["Method"]) != 0) and (int(args["Method"]) != 1):
-        return ResponseExt([{"Result":"0"}], 401)
+        return ResponseExt([{"Result":"1"}], 401)
 
     cur = g.db.cursor()
     if int(args["Method"]) == 0:
@@ -38,7 +38,7 @@ def userTagBind():
 
     cur.close()
     g.db.commit()
-    return ResponseExt([{"Result":"1"}], 200)
+    return ResponseExt([{"Result":"0"}], 200)
 
 #/GetTagListByUser?UserID=13501897143
 @api.route('/GetTagListByUser', methods=['GET'])
@@ -48,8 +48,10 @@ def getTagList():
         return ResponseExt([], 401)
 
     cur = g.db.cursor(DictCursor)
-    query = 'select TagID from sensors where UserID="%s"'%(args['UserID'])
-    print query
+    query = 'select TagID from sensorDatum where TagID in ' \
+            '(select TagID from sensors where UserID="%s") limit 1'%(args['UserID'])
+    #query = 'select TagID from sensors where UserID="%s"'%(args['UserID'])
+    #print query
     cur.execute(query)
     rows = cur.fetchall()
     res = [dict(TagID = row["TagID"]) for row in rows]

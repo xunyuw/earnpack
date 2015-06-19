@@ -58,7 +58,7 @@ def ir_handler():
         return jsonify({"result":"NOK"}), 500
 
 if __name__ == '__main__':
-    ir.run(host='0.0.0.0', port=5013, debug=True)
+    ir.run(host='0.0.0.0', port=5791)
 
 #
 ### EOF

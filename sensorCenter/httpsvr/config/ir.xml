@@ -1,0 +1,11 @@
+<uwsgi>
+     <pythonpath>/opt/ehome/httpsvr/</pythonpath>
+     <module>ir</module>
+     <callable>ir</callable>
+     <socket>0.0.0.0:5791</socket>
+     <master/>
+     <plugins>python</plugins>
+     <processes>4</processes>  
+     <memory-report/>
+     <pidfile>/tmp/.uwsgi-ir.pid</pidfile>
+</uwsgi>

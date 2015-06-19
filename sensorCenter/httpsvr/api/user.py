@@ -245,10 +245,26 @@ def GetUserIRInfo():
         return ResponseExt([], 401)
 
     cur = g.db.cursor(DictCursor)
+    '''
+    query="select sms from users where UserID='%s'"%(args['UserID'])
+    cur.execute(query)
+    row = cur.fetchone()
+    cur.close()
+    if not row:
+        return ResponseExt([], 501)
+    print row
+
+    TagID=row["sms"]
+    '''
+
     if ("KeyID" not in args):
-        query = 'select KeyID, SeqNo from irInfo where UserID="%s" and pktNum=pktIdx '%(args['UserID'])
+        query = 'select KeyID, SeqNo from irInfo where UserID="%s" ' \
+                'and TagID in (select sms from users where UserID="%s" )' \
+                'and pktNum=pktIdx '%(args['UserID'], args['UserID'])
     else:
-        query = 'select KeyID, SeqNo from irInfo where UserID="%s" and KeyID="%s" and pktNum=pktIdx '%(args['UserID'],args['KeyID'])
+        query = 'select KeyID, SeqNo from irInfo where UserID="%s" ' \
+                'and TagID in (select sms from users where UserID="%s" )' \
+                'and KeyID="%s" and pktNum=pktIdx '%(args['UserID'], args['UserID'], args['KeyID'])
 
     cur.execute(query)
     rows = cur.fetchall()
