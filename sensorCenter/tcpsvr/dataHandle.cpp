@@ -12,6 +12,23 @@
 #include <stdlib.h> 
 #include <time.h> 
 
+
+string CDataHandle::BYTEArr2str(char in[], int size)
+{
+    int len = 4*size + 1;
+    char* str = new char [len];
+    memset(str, 0, len);
+
+    for (int i = 0; i < size; i++)
+    {
+        snprintf(str+strlen(str), len-strlen(str), "%.3d ", in[i]);
+    }
+
+    string ret(str);
+    delete [] str;
+    return ret;
+}
+
 string CDataHandle::tagID2str(const BYTE tagID[])
 {
     char szTag[16] = {0};
@@ -220,18 +237,6 @@ bool CDataHandle::build_ir_pkt(const IR_INFO info, S_IR_Packet* ir_pkt)
     if (false == userID2Array(info.userID, psIR->UserID))
         return false;
 
-#if 1
-    printf("userid: \n");
-    for(int i = 0; i < 12; i++ )
-        printf("%d", (BYTE)(psIR->UserID[i]));
-    printf("\n");
-
-    printf("tagid: \n");
-    for(int i = 0; i < 4; i++ )
-        printf("0x%X", (BYTE)(psIR->TagID[i]));
-    printf("\n");
-
-#endif
     psIR->PackIndex = info.pktIdx;
     psIR->PackNumber = info.pktNum;
 
@@ -240,8 +245,19 @@ bool CDataHandle::build_ir_pkt(const IR_INFO info, S_IR_Packet* ir_pkt)
 
     memcpy(ir_pkt->acIRData, (char*)info.data.data, info.data.len);
 #if 1
-    printf("send ir data (keyID:%d, index: %d): \n",psIR->KeyID, psIR->PackIndex);
-    for(int i = 0; i < 10; i++)
+    printf("userid: ");
+    for(int i = 0; i < 12; i++ )
+        printf("%d", (BYTE)(psIR->UserID[i]));
+    printf("\n");
+
+    printf("tagid: ");
+    for(int i = 0; i < 4; i++ )
+        printf("0x%X", (BYTE)(psIR->TagID[i]));
+    printf("\n");
+
+    printf("send ir data (keyID:%d, index: %d, data.len: %d): \n",
+            psIR->KeyID, psIR->PackIndex, info.data.len);
+    for(int i = 0; i < info.data.len; i++)
         printf("%d ", (BYTE)ir_pkt->acIRData[i]);
     printf("\n");
 #endif
@@ -339,6 +355,13 @@ bool CDataHandle::get_irinfo(const char* userID, const char* tagID, const BYTE k
     return true;
 }
 
+void CDataHandle::save_user_behavor(const string& user, const string& msg)
+{
+    // workround for GET /ehome/GetUserIRInfo?UserID=13501897143 &KeyID=1
+    CEzMysqlQ* q = db.query;
+    q->execute("update users set sms='%s' where UserID='%s'", msg.c_str(), user.c_str());
+}
+
 #if 1
 bool CDataHandle::foward2dev(const string& msg)
 {
@@ -350,7 +373,11 @@ bool CDataHandle::foward2dev(const string& msg)
         LOGGER_WRITE(Logger::DEBUG, "unknown msg: %s", msg.c_str());
         return false;
     }
-   // std::copy(args.begin(), args.end(), ostream_iterator<string>(std::cout, "\n")); 
+    // std::copy(args.begin(), args.end(), ostream_iterator<string>(std::cout, "\n")); 
+
+    //workround for  GET /ehome/GetUserIRInfo?UserID=13501897143 &KeyID=1
+    if (0 == args[0].compare("A0") || 0 == args[0].compare("A6"))
+        save_user_behavor(args[1], args[2]);
 
     if (0 == args[0].compare("A0") || 0 == args[0].compare("A4"))
     {
@@ -376,6 +403,7 @@ bool CDataHandle::foward2dev(const string& msg)
         string userID = args[1];
         string tagID = args[2];
         BYTE keyID = static_cast<BYTE>(stoi(args[3], nullptr, 10));
+        WORD seq = static_cast<WORD>(stoi(args[4], nullptr, 10));
 
         LOGGER_WRITE(Logger::DEBUG, "userID: %s, tagID: %s, keyID: %d", 
             userID.c_str(), tagID.c_str(), keyID);
@@ -387,6 +415,9 @@ bool CDataHandle::foward2dev(const string& msg)
         S_IR_Packet ir_pkt;
         if (false == build_ir_pkt(info,  &ir_pkt))
             return false;
+
+        SWAP_END(seq);
+        ir_pkt.sIR.SeqNo = seq;
 
         LOGGER_WRITE(Logger::DEBUG, "data-len: %d, sizeof(ir_pkt):%d", info.data.len,sizeof(ir_pkt));
         int size = ir_pkt.sHeader.Length+5;
@@ -524,8 +555,9 @@ bool CDataHandle::handle_ir_pkt(int fd, S_IR_Packet* buf)
     LOGGER_WRITE(Logger::DEBUG, "userID: %s, data-len: %d", userID, ir.len);
 
 #if 1
-    printf("recv ir data (keyID:%d, index: %d): \n", sIR->KeyID, sIR->PackIndex);
-    for(int i = 0; i < 10; i++)
+    printf("recv ir data (UserID: %s, keyID:%d, index: %d, data.len: %d): \n",
+            userID, sIR->KeyID, sIR->PackIndex, ir.len);
+    for(int i = 0; i < ir.len; i++)
         printf("%d ", (BYTE)(buf->acIRData[i]));
     printf("\n");
 #endif
@@ -562,12 +594,21 @@ bool CDataHandle::handle_ctr_ack(int fd, S_IR_CMD* buf)
     BYTE ack = psIR->ACK;
     BYTE idx = psIR->PackIndex;
     BYTE num = psIR->PackNumber;
+    WORD seq = static_cast<WORD>(ntohs(psIR->SeqNo));
+
+    if (ack == 0 && idx == num)
+    {
+        CEzMysqlQ* q = db.query;
+        q->execute("update irInfo set SeqNo=%d where UserID='%s' and TagID='%s' and KeyID=%d",
+               seq, userID.c_str(), tagID.c_str(), keyID);
+        return true;
+    }
 
     BYTE next;
     if (ack  == 0)
         next = idx + 1;
     else
-        next = idx;
+        next = 1;
 
     if  (next > num)
         return false;
@@ -582,6 +623,9 @@ bool CDataHandle::handle_ctr_ack(int fd, S_IR_CMD* buf)
     S_IR_Packet ir_pkt;
     if (false == build_ir_pkt(info,  &ir_pkt))
         return false;
+
+    SWAP_END(seq);
+    ir_pkt.sIR.SeqNo = seq;
 
     int size = ir_pkt.sHeader.Length+5;
     return send2dev(fd, (char*)&ir_pkt, size);

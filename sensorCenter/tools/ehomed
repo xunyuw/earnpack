@@ -1,0 +1,153 @@
+#!/usr/bin/env bash
+
+stop_httpsvr()
+{
+    module="$1"
+    case ${module} in
+        app)
+            xml=run.xml
+            f_pid="/tmp/.uwsgi-run.pid"
+        ;;
+        ir)
+            xml=ir.xml
+            f_pid="/tmp/.uwsgi-ir.pid"
+        ;;
+        *)
+            echo "invalid parameter"
+        ;;
+    esac
+    patten="uwsgi.*[[:space:]]+-x.+${xml}"
+    #echo $patten
+    res=$(ps -ef |egrep ${patten} |grep -cv grep)
+    if [ $res -gt 0 ]; then
+        echo -n "stop uwsgi for ${module}......"
+        uwsgi --stop "$f_pid" >/dev/null 2>&1
+        sleep 3
+        res=$(ps -ef |egrep ${patten} |grep -cv grep)
+        if [ $res -gt 0 ]; then
+            echo "[Failed]"
+            return 11
+        else
+            echo "[OK]"
+        fi
+    else
+        echo "uwsgi for ${module} NOT running"
+    fi
+    return 0
+}
+
+killapp()
+{
+    app="$1"
+    pgrep -l "$app" >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        killall "$app" >/dev/null 2>&1
+        echo "$app exit!!!"
+    else
+        echo "$app NOT running"
+    fi
+    
+}
+
+kill_collector_launcher()
+{
+    local prog="collector-launcher"
+    echo -n "stop ${prog}......"
+    ps -ef | grep "${prog}" | grep -v grep | awk '{print $2}' | xargs kill -9
+    res=$(ps -ef |egrep ${prog} |grep -cv grep)
+    if [ $res -gt 0 ]; then
+        echo "[Failed]"
+    else
+        killall collector >/dev/null 2>&1
+        echo "[OK]"
+    fi
+}
+
+start_httpsvr()
+{
+    module="$1"
+    case ${module} in
+        app)
+            xml=run.xml
+            f_pid="/tmp/.uwsgi-run.pid"
+        ;;
+        ir)
+            xml=ir.xml
+            f_pid="/tmp/.uwsgi-ir.pid"
+        ;;
+        *)
+            echo "invalid parameter"
+        ;;
+    esac
+    patten="uwsgi.*[[:space:]]+-x.+${xml}"
+    res=$(ps -ef |egrep ${patten} |grep -cv grep)
+    if [ $res -gt 0 ]; then
+        stop_httpsvr ${module} 
+    fi
+    f_conf="/opt/ehome/httpsvr/config/$xml"
+    echo -n "start uwsgi for ${module}......"
+    uwsgi -L -x $f_conf >/dev/null 2>&1 &
+    sleep 3
+    res=$(ps -ef |egrep ${patten} |grep -cv grep)
+    if [ $res -gt 0 ]; then
+        echo "[OK]"
+    else
+        echo "[Failed]"
+    fi
+}
+
+start_collector_launcher()
+{
+    /opt/ehome/tools/collector-launcher &
+}
+
+start_ehome()
+{
+    start_collector_launcher
+    start_httpsvr app
+    start_httpsvr ir
+}
+
+stop_ehome()
+{
+    kill_collector_launcher
+    stop_httpsvr app
+    stop_httpsvr ir
+}
+
+U_ID=$(id -u)
+if [ $U_ID -ne 0 ]; then
+  echo "Permission denied"
+  exit 1
+fi
+
+if [ $# -ne 1 ]; then 
+    echo "usage:"
+    echo "      $(basename $0) <start|stop|restart|status>"
+    echo ""
+    exit 255
+fi
+
+#echo "$(basename $0) $1..."
+act="$1"
+case $act in
+    start)
+        start_ehome
+        ;;
+    stop)
+        stop_ehome
+        ;;
+    restart)
+        stop_ehome
+        start_ehome
+        ;;
+    status)
+        echo "status ...//TODO"
+        ;;
+    *)
+        echo -e "Usage:\n\t $(basename $0) <start|stop|restart|status>"
+        ;;
+esac
+#
+## EOF
+

@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+slog()
+{
+  echo "$(date -d today +'%Y-%m-%d %H:%M:%S') $1" >> /var/log/$(basename $0).log
+}
+
+
+killapp()
+{
+    app="$1"
+    pgrep -l "$app" >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        killall "$app" >/dev/null 2>&1
+    fi
+}
+
+
+U_ID=$(id -u)
+if [ $U_ID -ne 0 ]; then
+  echo "Permission denied"
+  exit 1
+fi
+
+trap 'killapp collector; exit 0'  SIGHUP SIGINT SIGQUIT
+
+f_svr="/opt/ehome/tcpsvr/collector"
+if [ ! -f "$f_svr" ]; then
+  echo "not found $f_svr"
+  exit 11
+fi
+
+killapp collector
+
+rm -f /var/log/$(basename $0).log 2&>/dev/null
+ulimit -c 20480
+while true; do
+  ulimit -c
+  slog "start collector..."
+  $f_svr
+  slog "collector exit ???"
+  sleep 0.5
+done

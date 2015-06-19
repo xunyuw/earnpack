@@ -46,6 +46,7 @@ class CDataHandle
         bool update_map4tagfd(int fd);
         bool recvData(int fd, void* buf, int size);
     private:
+        string BYTEArr2str(char in[], int size);
         string tagID2str(const BYTE tagID[]);
         bool tagID2Array(const string strTag, BYTE tagID[] );
 
@@ -78,6 +79,7 @@ class CDataHandle
         bool handle_ctr_ack(int fd, S_IR_CMD* buf);
 
         bool get_irinfo(const char* userID, const char* tagID, const BYTE keyID, const BYTE pktIdx, IR_INFO* info);
+        void save_user_behavor(const string& user, const string& msg);
 
     private:
         CEzMysqlDB db;
