@@ -46,7 +46,7 @@ class CDataHandle
         bool update_map4tagfd(int fd);
         bool recvData(int fd, void* buf, int size);
     private:
-        string BYTEArr2str(char in[], int size);
+        string BYTEArr2str(BYTE in[], int size, const char* fmt);
         string tagID2str(const BYTE tagID[]);
         bool tagID2Array(const string strTag, BYTE tagID[] );
 
