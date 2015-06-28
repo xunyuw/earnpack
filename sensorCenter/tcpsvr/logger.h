@@ -17,7 +17,8 @@ public:
         CONFIG,
         INFO,
         WARNING,
-        ERROR
+        ERROR,
+        OFF
     };
  
     // start/stop logging

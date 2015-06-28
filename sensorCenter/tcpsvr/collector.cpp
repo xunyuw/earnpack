@@ -35,11 +35,10 @@ int main(int argc, char ** argv)
     ev_io ev_io_watcher;
     listen = socket_init();
 
-    pHandle = std::auto_ptr<CDataHandle>(new CDataHandle);
-
     std::string host;  
     std::string user;  
     std::string pwd;  
+    int dbg = 0;
     //std::string logPri;
 
     const string conf("/etc/ehome/config.ini");   
@@ -49,7 +48,7 @@ int main(int argc, char ** argv)
         host = settings.Read<string>("host");
         user = settings.Read<string>("user");
         pwd = settings.Read<string>("passwd");
-
+        dbg = settings.Read<int>("dbg");
         //logPri = settings.Read<string>("LogPri");
     }   
     catch(...)
@@ -57,6 +56,11 @@ int main(int argc, char ** argv)
         cout << "config file: " << conf << "NOT exist or invalid settings\n"; 
         return -1;
     }
+
+    if (dbg < 0 || dbg > 5)
+        dbg = static_cast<int>(Logger::OFF);
+    
+    pHandle = std::auto_ptr<CDataHandle>(new CDataHandle(static_cast<Logger::Priority>(dbg)));
 
     if (false == pHandle->connectDB(host, user, pwd, "ehomeDB"))
     {

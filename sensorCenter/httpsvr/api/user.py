@@ -259,12 +259,10 @@ def GetUserIRInfo():
 
     if ("KeyID" not in args):
         query = 'select KeyID, SeqNo from irInfo where UserID="%s" ' \
-                'and TagID in (select sms from users where UserID="%s" )' \
-                'and pktNum=pktIdx '%(args['UserID'], args['UserID'])
+                'and pktNum=pktIdx '%(args['UserID'])
     else:
         query = 'select KeyID, SeqNo from irInfo where UserID="%s" ' \
-                'and TagID in (select sms from users where UserID="%s" )' \
-                'and KeyID="%s" and pktNum=pktIdx '%(args['UserID'], args['UserID'], args['KeyID'])
+                'and KeyID="%s" and pktNum=pktIdx '%(args['UserID'], args['KeyID'])
 
     cur.execute(query)
     rows = cur.fetchall()

@@ -32,9 +32,9 @@ typedef struct
 class CDataHandle
 {
     public:
-        explicit CDataHandle():db()
+        explicit CDataHandle(Logger::Priority dbg):db(), local_is_little(isLittleEndian())
         {
-            LOGGER_START(Logger::DEBUG, "/tmp/collector.log");
+            LOGGER_START(dbg, "/tmp/collector.log");
         }
         ~CDataHandle() {};
 
@@ -46,14 +46,16 @@ class CDataHandle
         bool update_map4tagfd(int fd);
         bool recvData(int fd, void* buf, int size);
     private:
+        void swapEndian(WORD& v);    
+        bool isLittleEndian();
+        WORD to_little(WORD v);
+
         string BYTEArr2str(BYTE in[], int size, const char* fmt);
         string tagID2str(const BYTE tagID[]);
         bool tagID2Array(const string strTag, BYTE tagID[] );
 
         string userID2str(const BYTE userID[]);
         bool userID2Array(const string strUser, BYTE userID[]);
-
-        void swapEndian(WORD& v);    
 
         vector<string> str_split(const string &s, char delim); 
 
@@ -83,6 +85,7 @@ class CDataHandle
 
     private:
         CEzMysqlDB db;
+        bool local_is_little;
         map<string, int> tag4fd;
         map<int, string> fd4tag;
 };

@@ -12,6 +12,57 @@
 #include <stdlib.h> 
 #include <time.h> 
 
+void CDataHandle::swapEndian(WORD& v)    
+{    
+    BYTE* p = (BYTE*)&v;    
+    BYTE t = *(p);    
+    *(p) = *(p+1);    
+    *(p+1) = t;    
+}
+
+#if 1
+#define SWAP_END(V) swapEndian(V)
+#else
+#define SWAP_END(V) 
+#endif
+
+bool CDataHandle::isLittleEndian()
+{
+    union{
+        unsigned long bits32;
+        unsigned char bytes[4];
+    }value;
+    value.bytes[0] = 0;
+    value.bytes[1] = 1;
+    value.bytes[2] = 0;
+    value.bytes[3] = 0;
+
+    return value.bits32 == 256;
+}
+
+//peer is little, transfer to local
+WORD CDataHandle::to_little(WORD v)    
+{    
+    if (local_is_little)
+        return v;
+
+    BYTE* p = (BYTE*)&v;    
+    BYTE t = *(p);    
+    *(p) = *(p+1);    
+    *(p+1) = t;    
+    return v;
+}
+
+#define PEER_LITTLE
+
+#ifdef PEER_LITTLE
+  #define N2HS(V) to_little(V)
+  #define H2NS(V) to_little(V)
+#else
+  #define N2HS(V) ntohs(v)
+  #define H2NS(V) htons(v)
+#endif
+
 
 string CDataHandle::BYTEArr2str(BYTE in[], int size, const char* fmt)
 {
@@ -84,19 +135,6 @@ bool CDataHandle::userID2Array(const string strUser, BYTE userID[])
     return true;
 }
 
-void CDataHandle::swapEndian(WORD& v)    
-{    
-    BYTE* p = (BYTE*)&v;    
-    BYTE t = *(p);    
-    *(p) = *(p+1);    
-    *(p+1) = t;    
-}
-
-#if 1
-#define SWAP_END(V) swapEndian(V)
-#else
-#define SWAP_END(V) 
-#endif
 vector<string> CDataHandle::str_split(const string &s, char delim) 
 {
     stringstream ss(s);
@@ -139,10 +177,12 @@ void CDataHandle::build_sHead(const S_IR& sIR, S_IR_Head* sHead)
     memset(sHead, 0, sizeof(S_IR_Head));
     sHead->Version = (BYTE)AIR_PROTOCOL;
     WORD len = static_cast<WORD>(sizeof(S_IR));
-    sHead->Length = htons(len);
-    SWAP_END(sHead->Length);
+    //sHead->Length = htons(len);
+    //SWAP_END(sHead->Length);
+    sHead->Length = H2NS(len);
+
     WORD crc = static_cast<WORD>(crc16((char*)&sIR, len));
-    sHead->PackCRC = htons(crc);
+    sHead->PackCRC = H2NS(crc);
 }
 
 bool CDataHandle::build_sIR(const vector<string>& args, S_IR* sIR)
@@ -166,21 +206,12 @@ bool CDataHandle::build_sIR(const vector<string>& args, S_IR* sIR)
 
     sIR->KeyID = static_cast<BYTE>(stoi(args[3], nullptr, 10));
     WORD seq = static_cast<WORD>(stoi(args[4], nullptr, 10));
-    sIR->SeqNo = htons(seq);
-    SWAP_END(sIR->SeqNo);
+    //sIR->SeqNo = htons(seq);
+    //SWAP_END(sIR->SeqNo);
+    sIR->SeqNo = H2NS(seq);
+
     sIR->PackIndex = (BYTE)1;
     sIR->PackNumber= (BYTE)1;
-
-#if 0
-    int j = 0;
-    cout << "CMD: " << (int)sIR->CMD << "\n";
-    cout << "userID: \n";
-    for (j = 0; j < 12; j++)
-        cout << (int)sIR->UserID[j] << "\n";
-    cout << "tagid: \n";
-    for (j = 0; j < 4; j++)
-        cout << (int)sIR->TagID[j] << "\n";
-#endif
 
     return true;
 }
@@ -191,10 +222,11 @@ void CDataHandle::build_sIRCMD(const S_IR& sIR, S_IR_CMD* sCMD)
     memset(sHead, 0, sizeof(S_IR_Head));
     sHead->Version = (BYTE)AIR_PROTOCOL;
     WORD len = static_cast<WORD>(sizeof(S_IR));
-    sHead->Length = htons(len);
-    SWAP_END(sHead->Length);
+    //sHead->Length = htons(len);
+    //SWAP_END(sHead->Length);
+    sHead->Length = H2NS(len);
     WORD crc = static_cast<WORD>(crc16((char*)&sIR, len));
-    sHead->PackCRC = htons(crc);
+    sHead->PackCRC = H2NS(crc);
 
     memcpy((S_IR*)&(sCMD->sIR), (S_IR*)&sIR, sizeof(S_IR));
 }
@@ -215,10 +247,12 @@ void CDataHandle::build_sIRKey(const S_IR& sIR, S_IR_Key* sIRKey)
     memset(sHead, 0, sizeof(S_IR_Head));
     sHead->Version = (BYTE)AIR_PROTOCOL;
     WORD len = static_cast<WORD>(sizeof(S_IR_Key));
-    sHead->Length = htons(len);
-    SWAP_END(sHead->Length);
+    //sHead->Length = htons(len);
+    //SWAP_END(sHead->Length);
+    sHead->Length = H2NS(len);
+
     WORD crc = static_cast<WORD>(crc16((char*)&sIR, len));
-    sHead->PackCRC = htons(crc);
+    sHead->PackCRC = H2NS(crc);
 
     memcpy((S_IR*)&(sIRKey->sIR), (S_IR*)&sIR, sizeof(S_IR));
     sIRKey->KeyID = sIR.KeyID;
@@ -233,7 +267,7 @@ bool CDataHandle::build_ir_pkt(const IR_INFO info, S_IR_Packet* ir_pkt)
     psIR->ACK = 0;
     psIR->KeyID = info.keyID;
     psIR->SeqNo = info.seqNo;
-    SWAP_END(psIR->SeqNo);
+    //SWAP_END(psIR->SeqNo);
     if (false == userID2Array(info.userID, psIR->UserID))
         return false;
 
@@ -244,7 +278,7 @@ bool CDataHandle::build_ir_pkt(const IR_INFO info, S_IR_Packet* ir_pkt)
         return false;
 
     memcpy(ir_pkt->acIRData, (char*)info.data.data, info.data.len);
-#if 1
+#if ENABLE_LOGGER
     string strUser = BYTEArr2str(psIR->UserID, 12, "%d");
 
     string strTag = BYTEArr2str(psIR->TagID, 4, "%X");
@@ -259,8 +293,9 @@ bool CDataHandle::build_ir_pkt(const IR_INFO info, S_IR_Packet* ir_pkt)
     ph->Version =  (BYTE)AIR_PROTOCOL;
     ph->PackCRC = (WORD)0;
     WORD len = static_cast<WORD>(info.data.len + sizeof(S_IR));
-    ph->Length = htons(len);
-    SWAP_END(ph->Length);
+    ph->Length = H2NS(len);
+    //ph->Length = htons(len);
+    //SWAP_END(ph->Length);
     return true;
 }
 
@@ -270,15 +305,13 @@ void CDataHandle::build_sREP_ACK(const S_IR& sIR, BYTE ack, S_REPORT_ACK* sRepAC
     sRepACK->sHead.Version =  (BYTE)AIR_PROTOCOL;
     sRepACK->sHead.PackCRC = (WORD)0;
     //sRepACK->sHead.Length = (WORD)(sizeof(S_REPORT_ACK)-sizeof(S_IR_Head));
-    sRepACK->sHead.Length = (WORD)(sizeof(S_REPORT_ACK));
-    SWAP_END(sRepACK->sHead.Length);
+    sRepACK->sHead.Length = H2NS(static_cast<WORD>(sizeof(S_REPORT_ACK)));
     sRepACK->CMD = (BYTE)0xA3;
     for (int i = 0; i<4; i++)
         sRepACK->TagID[i] = sIR.TagID[i];
     sRepACK->ACK = ack;
     sRepACK->KeyID = sIR.KeyID;
-    sRepACK->SeqNo = sIR.SeqNo;
-    SWAP_END(sRepACK->SeqNo);
+    sRepACK->SeqNo = H2NS(sIR.SeqNo);
     sRepACK->PackIndex = sIR.PackIndex;
     sRepACK->PackNumber = sIR.PackNumber;        
 }
@@ -330,14 +363,17 @@ bool CDataHandle::update_map4tagfd(int fd)
 bool CDataHandle::get_irinfo(const char* userID, const char* tagID, const BYTE keyID, const BYTE pktIdx, IR_INFO* info)
 {
     CEzMysqlQ* q = db.query;
-    q->execute("select * from irInfo where UserID='%s' and TagID='%s' and KeyID=%d and pktIdx=%d", 
-            userID, tagID, keyID, pktIdx);
+    q->execute("select * from irInfo where UserID='%s' and KeyID=%d and pktIdx=%d", 
+            userID, keyID, pktIdx);
+    //q->execute("select * from irInfo where UserID='%s' and TagID='%s' and KeyID=%d and pktIdx=%d", 
+    //        userID, tagID, keyID, pktIdx);
     char** row = q->fetchone();
     if (row == NULL)
         return false;
 
     info->userID = string(row[0]);
-    info->tagID = string(row[1]);
+    info->tagID = string(tagID);
+    //info->tagID = string(row[1]);
     info->keyID = static_cast<BYTE>(atoi(row[2]));
     info->seqNo = static_cast<WORD>(atoi(row[3])); 
     info->pktNum = static_cast<BYTE>(atoi(row[4]));
@@ -354,7 +390,6 @@ void CDataHandle::save_user_behavor(const string& user, const string& msg)
     q->execute("update users set sms='%s' where UserID='%s'", msg.c_str(), user.c_str());
 }
 
-#if 1
 bool CDataHandle::foward2dev(const string& msg)
 {
     //A0&13501897143&549E7FD&1&0
@@ -369,8 +404,8 @@ bool CDataHandle::foward2dev(const string& msg)
     // std::copy(args.begin(), args.end(), ostream_iterator<string>(std::cout, "\n")); 
 
     //workround for  GET /ehome/GetUserIRInfo?UserID=13501897143 &KeyID=1
-    if (0 == args[0].compare("A0") || 0 == args[0].compare("A6"))
-        save_user_behavor(args[1], args[2]);
+    //if (0 == args[0].compare("A0") || 0 == args[0].compare("A6"))
+    //    save_user_behavor(args[1], args[2]);
 
     if (0 == args[0].compare("A0") || 0 == args[0].compare("A4"))
     {
@@ -396,8 +431,8 @@ bool CDataHandle::foward2dev(const string& msg)
         string userID = args[1];
         string tagID = args[2];
         BYTE keyID = static_cast<BYTE>(stoi(args[3], nullptr, 10));
-        WORD seq = htons(static_cast<WORD>(stoi(args[4], nullptr, 10)));
-        SWAP_END(seq);
+        //WORD seq = htons(static_cast<WORD>(stoi(args[4], nullptr, 10)));
+        //SWAP_END(seq);
 
         LOGGER_WRITE(Logger::DEBUG, "userID: %s, tagID: %s, keyID: %d", 
             userID.c_str(), tagID.c_str(), keyID);
@@ -410,7 +445,7 @@ bool CDataHandle::foward2dev(const string& msg)
         if (false == build_ir_pkt(info,  &ir_pkt))
             return false;
 
-        ir_pkt.sIR.SeqNo = seq;
+        ir_pkt.sIR.SeqNo = H2NS(static_cast<WORD>(stoi(args[4], nullptr, 10)));
 
         LOGGER_WRITE(Logger::DEBUG, "data-len: %d, sizeof(ir_pkt):%d", info.data.len,sizeof(ir_pkt));
         int size = ir_pkt.sHeader.Length+5;
@@ -423,40 +458,6 @@ bool CDataHandle::foward2dev(const string& msg)
 
     return true;
 }
-#else
-
-bool CDataHandle::foward2dev(const string& msg)
-{
-    //A0&13501897143&549E7FD&1&0
-    //LOGGER_WRITE(Logger::DEBUG, "Entry forward2dev...")
-    vector<string> args = str_split(msg, '&');
-    if (args.size() != 6 )
-        return false;
-   // std::copy(args.begin(), args.end(), ostream_iterator<string>(std::cout, "\n")); 
-
-    if (0 == args[0].compare("A0") || 0 == args[0].compare("A4"))
-    {
-        S_IR_CMD  sCMD;
-        S_IR      sIR;
-        if(false == build_sIR(args, &sIR))
-            return false;
-        build_sIRCMD(sIR, &sCMD);
-        send2dev(args[2], (char*)&sCMD, sizeof(S_IR_CMD));
-    }
-    if (0 == args[0].compare("A0"))
-    {
-        args[0] = "A1";
-        S_IR_Key sIRKey;
-        S_IR      sIR;
-        if(false == build_sIR(args, &sIR))
-            return false;
-        build_sIRKey(sIR, &sIRKey);
-        return send2dev(args[2], (char*)&sIRKey, sizeof(S_IR_Key));
-    }
-
-    return true;
-}
-#endif
 
 bool CDataHandle::storeDB(int fd, sDEVICE_REPORT* report)
 {
@@ -509,30 +510,19 @@ bool CDataHandle::handle_ir_pkt(int fd, S_IR_Packet* buf)
     const S_IR* const sIR = (S_IR*)&(buf->sIR); 
     const S_IR_Head* const sHeader = (S_IR_Head*)&(buf->sHeader); 
     //const S_IR_Head* const sHeader = (S_IR_Head*)&(buf->sHeader); 
-#if 0
-    if (sHeader->Version !=  (BYTE)AIR_PROTOCOL)
-    {
-        LOGGER_WRITE(Logger::ERROR, "invalid packet, Version error: 0x%X", sHeader->Version);
-        return false;
-    }
-
-    if (sIR->CMD != 0xA2)
-    {
-        LOGGER_WRITE(Logger::ERROR, "sIR->CMD(%X) must be 0xA2", sIR->CMD);
-        return false;
-    }
-#endif 
     string strTag = tagID2str((BYTE*)buf->sIR.TagID);
+
+    //WORD seq = ntohs(static_cast<WORD>(sIR->SeqNo));
+    //SWAP_END(seq);
+    WORD seq = N2HS(sIR->SeqNo);
 
     LOGGER_WRITE(Logger::DEBUG, "handle_ir_pk recv:\n \
             len: %d, \n \
             KeyID: %d, SeqNo: %d; \n \
             PackIndex:%d,PackNumber:%d", 
             sHeader->Length, 
-            sIR->KeyID, sIR->SeqNo,
+            sIR->KeyID, seq,
             sIR->PackIndex, sIR->PackNumber);
-    // TODO
-
 
     char to[256] = {0};
     IRDATA ir;
@@ -546,7 +536,7 @@ bool CDataHandle::handle_ir_pkt(int fd, S_IR_Packet* buf)
     for (int i = 0; i < 11; i++)
         userID[i]=static_cast<char>((BYTE)(buf->sIR.UserID[i])+48);
 
-#if 1
+#if ENABLE_LOGGER
     string str = BYTEArr2str(buf->acIRData, ir.len, "%.2X ");
 
     LOGGER_WRITE(Logger::DEBUG, "recv ir data (UserID: %s, TagID:%s, keyID:%d, index: %d, data.len: %d): \n%s",
@@ -556,10 +546,12 @@ bool CDataHandle::handle_ir_pkt(int fd, S_IR_Packet* buf)
 
     CEzMysqlQ* q = db.query;
     if (sIR->PackIndex == 1)
-        q->execute("delete from irInfo where UserID='%s' and TagID='%s' and KeyID=%d",
-                userID, strTag.c_str(), sIR->KeyID); 
+        q->execute("delete from irInfo where UserID='%s' and KeyID=%d",
+                userID, sIR->KeyID); 
+        //q->execute("delete from irInfo where UserID='%s' and TagID='%s' and KeyID=%d",
+        //        userID, strTag.c_str(), sIR->KeyID); 
     q->execute("insert into irInfo values('%s', '%s', %d, %d, %d, %d, '%s') ",
-                userID, strTag.c_str(), sIR->KeyID, sIR->SeqNo, 
+                userID, strTag.c_str(), sIR->KeyID, seq, 
                 sIR->PackNumber, sIR->PackIndex, to);
     //
 
@@ -584,8 +576,9 @@ bool CDataHandle::handle_ctr_ack(int fd, S_IR_CMD* buf)
     BYTE ack = psIR->ACK;
     BYTE idx = psIR->PackIndex;
     BYTE num = psIR->PackNumber;
-    WORD seq = static_cast<WORD>(ntohs(psIR->SeqNo));
-    SWAP_END(seq);
+    //WORD seq = static_cast<WORD>(ntohs(psIR->SeqNo));
+    //SWAP_END(seq);
+    WORD seq = N2HS(psIR->SeqNo);
 
     LOGGER_WRITE(Logger::DEBUG, "Entry handle_ctr_ack: \nuserID: %s, tagID: %s, keyID: %d, idx: %d, num: %d, ack:%d, seq:%d", 
             userID.c_str(), tagID.c_str(), keyID, idx, num, ack, seq);
@@ -594,8 +587,8 @@ bool CDataHandle::handle_ctr_ack(int fd, S_IR_CMD* buf)
     {
         LOGGER_WRITE(Logger::DEBUG, "end of ctr");
         CEzMysqlQ* q = db.query;
-        q->execute("update irInfo set SeqNo=%d where UserID='%s' and TagID='%s' and KeyID=%d",
-               seq, userID.c_str(), tagID.c_str(), keyID);
+        q->execute("update irInfo set SeqNo=%d where UserID='%s' and KeyID=%d",
+               seq, userID.c_str(), keyID);
         return true;
     }
 
@@ -618,7 +611,7 @@ bool CDataHandle::handle_ctr_ack(int fd, S_IR_CMD* buf)
     if (false == build_ir_pkt(info,  &ir_pkt))
         return false;
 
-    ir_pkt.sIR.SeqNo = seq;
+    ir_pkt.sIR.SeqNo = H2NS(seq);
 
     int size = ir_pkt.sHeader.Length+5;
     return send2dev(fd, (char*)&ir_pkt, size);
@@ -632,17 +625,23 @@ bool CDataHandle::recvData(int fd, void* buf, const int size)
     {
         if (size < 28) // sizeof header + size of S_IR
         {
-            LOGGER_WRITE(Logger::WARNING, "Discard invalid pkt, fd=%d, size=%d, CMD: 0x%X", 
-                        fd, size, p->sIR.CMD);
+            string raw = BYTEArr2str((BYTE*)buf, size, "%.2X ");
+            LOGGER_WRITE(Logger::ERROR, "Discard invalid pkt, fd=%d, size=%d, CMD: 0x%X \n%s", 
+                        fd, size, p->sIR.CMD, raw.c_str());
             return false;
         }
-        WORD data_len = ntohs(static_cast<WORD>(p->sHeader.Length));
+        WORD data_len = N2HS(static_cast<WORD>(p->sHeader.Length));
         //SWAP_END(data_len);
         WORD tmp = data_len;
         SWAP_END(tmp);
+#if ENABLE_LOGGER
         if (size != data_len+5 && size != tmp+5)
-            LOGGER_WRITE(Logger::WARNING, "???????pkt, fd=%d, size=%d, Length=%d, swap_end=%d",fd, size, data_len, tmp);
-
+        {
+            string raw = BYTEArr2str((BYTE*)buf, size, "%.2X ");
+            LOGGER_WRITE(Logger::WARNING, "???????pkt, fd=%d, size=%d, Length=%d, swap_end=%d \n%s",
+                         fd, size, data_len, tmp, raw.c_str());
+        }
+#endif
         switch (p->sIR.CMD)
         {
             case 0xA2:
@@ -655,8 +654,9 @@ bool CDataHandle::recvData(int fd, void* buf, const int size)
                 storeDB(fd, (sDEVICE_REPORT*)buf);
                 break;
             default:
-                LOGGER_WRITE(Logger::WARNING, "Discard invalid pkt, fd=%d, size=%d, CMD: 0x%X", 
-                        fd, size, p->sIR.CMD);
+                string raw = BYTEArr2str((BYTE*)buf, size, "%.2X ");
+                LOGGER_WRITE(Logger::ERROR, "Discard invalid pkt, fd=%d, size=%d, CMD: 0x%X \n%s", 
+                        fd, size, p->sIR.CMD, raw.c_str());
                 break;
         }
     }
@@ -672,56 +672,13 @@ bool CDataHandle::recvData(int fd, void* buf, const int size)
                 foward2dev(string((char*)buf));
                 break;
             default:
-                LOGGER_WRITE(Logger::WARNING, "Discard unknown msg, fd=%d, size=%d", fd, size);
+                string raw = BYTEArr2str((BYTE*)buf, size, "%.2X ");
+                LOGGER_WRITE(Logger::ERROR, "Discard unknown msg, fd=%d, size=%d \n%s", fd, size, raw.c_str());
                 break;
         }
     }
     return true;
 }
-
-#if 0
-bool CDataHandle::recvData(int fd, void* buf, const int size)
-{
-    const int sz_report = sizeof(sDEVICE_REPORT);
-    const int sz_ir_pkt = sizeof(S_IR_Packet);
-    const int sz_rep_ack = sizeof(S_REPORT_ACK);
-
-    const int sz_ir_key = sizeof(S_IR_Key);
-    const int sz_ir_cmd = sizeof(S_IR_CMD);
-
-    //LOGGER_WRITE(Logger::DEBUG, "Entry recvData: fd=%d, size=%d", fd, size);
-    switch(size)
-    {
-        case sz_report:
-            storeDB(fd, (sDEVICE_REPORT*)buf);
-            break;
-        case sz_ir_pkt:
-            handle_ir_pkt(fd, (S_IR_Packet*)buf);
-            break;
-        case sz_rep_ack:
-            LOGGER_WRITE(Logger::INFO, "recv ir report ack, fd=%d", fd);
-            break;
-        case sz_ir_key:
-            LOGGER_WRITE(Logger::INFO, "recv ir key, fd=%d", fd);
-            break;
-        case sz_ir_cmd:
-            LOGGER_WRITE(Logger::INFO, "recv ir cmd, fd=%d, size=%d", fd, size);
-            break;
-        case 99:  //forward msg
-            LOGGER_WRITE(Logger::INFO, "recv forward msg, fd=%d, size=%d", fd, size);
-            foward2dev(string((char*)buf));
-            break;
-        default:
-            if (size >= 50)
-                handle_ir_pkt(fd, (S_IR_Packet*)buf);
-            else
-                LOGGER_WRITE(Logger::WARNING, "unknown msg, fd=%d, size=%d", fd, size);
-            break;
-    }
-
-    return true;
-}
-#endif 
 
 
 //
