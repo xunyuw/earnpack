@@ -3,10 +3,18 @@ import json
 from flask import request, jsonify, Response, json
 from datetime import datetime
 
+import hashlib
+
 def to_sV(strT):
     t = datetime.strptime(strT, '%Y-%m-%d %H:%M:%S')
     diff = (datetime.now() - t).total_seconds()
     return ("0"  if diff > 60 else "1")
+
+def to_md5(txt):
+    m = hashlib.md5()
+    m.update(txt)
+    return m.hexdigest()
+
 
 def format_datum_row(row):
     return dict(TagID = row["TagID"],

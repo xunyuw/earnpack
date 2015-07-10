@@ -123,17 +123,18 @@ def register():
     res = [dict(pwd=row["pwd"],name=row["name"]) for row in rows ]
 
     bExist = (True if len(res) > 0 else False)
-    cur.execute('replace into users values(%s, %s, %s, "")',
+    if bExist:
+        cur.close()
+        return ResponseExt([{"Result":"1"}], 200)
+    else:
+        cur.execute('replace into users values(%s, %s, %s, "")',
                 [args['UserID'].encode('utf-8'),
-                 args['Pwd'].encode('utf-8'),
+                 to_md5(args['Pwd']).encode('utf-8'),
                  args['Name'].encode('utf-8')])
 
-    cur.close()
-    g.db.commit()
-    if not bExist:
+        cur.close()
+        g.db.commit()
         return ResponseExt([{"Result":"0"}], 200)
-    else:
-        return ResponseExt([{"Result":"1"}], 200)
 
 #/GetUserInfo?UserID=13501897143
 @api.route('/GetUserInfo', methods=['GET'])
@@ -171,8 +172,9 @@ def SetUserUpdate():
             and (res[0]['pwd'] != args['Pwd'] \
             or res[0]['name'] != args['Name']):
     '''
+
     if len(res) > 0:
-        pwd = (res[0]['pwd'] if 'Pwd' not in args else args['Pwd'])
+        pwd = (res[0]['pwd'] if 'Pwd' not in args else to_md5(args['Pwd']))
         name = (res[0]['name'] if 'Name' not in args else args['Name'])
         cur.execute('update users set pwd=%s, name=%s where UserID=%s' ,
                         [pwd.encode('utf-8'),
@@ -195,7 +197,7 @@ def GetLoginVerify():
         return ResponseExt([{"Result":"1"}], 401)
 
     cur = g.db.cursor(DictCursor)
-    query = 'select UserID from users where UserID="%s" and pwd="%s"'%(args['UserID'], args['PWD'])
+    query = 'select UserID from users where UserID="%s" and pwd="%s"'%(args['UserID'], to_md5(args['PWD']))
     cur.execute(query)
     rows = cur.fetchall()
     cur.close()
@@ -219,7 +221,7 @@ def removeUser():
     cur.execute(query)
     cur.close()
     g.db.commit()
-    return ResponseExt([{"Result":"1"}], 401)
+    return ResponseExt([{"Result":"1"}], 200)
 
 
 #/listUsers

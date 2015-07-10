@@ -1,5 +1,3 @@
-#include <time.h>  
-
 #include<sys/timeb.h>
 #include<time.h>
 #include <stdarg.h>
@@ -56,7 +54,7 @@ void Logger::get_time(char* const  szTime, const int nLen)
     sprintf(szTime,"%.4d-%.2d-%.2d %.2d:%.2d:%.2d.%.3d",
                     1900+ time_now->tm_year,
                     1 + time_now->tm_mon,
-                    time_now->tm_yday,
+                    time_now->tm_mday,
                     time_now->tm_hour,
                     time_now->tm_min,
                     time_now->tm_sec,
