@@ -25,10 +25,19 @@ def getTagInfoByID():
 
     cur = g.db.cursor(DictCursor)
     # select * from sensorDatum order by rT desc limit 1
-    query = 'select * from sensorDatum where TagID="%s" order by rT desc limit 1'%(args['TagID'])
+    # query = 'select * from sensorDatum where TagID="%s" order by rT desc limit 1'%(args['TagID'])
+    query = 'select * from latestRecord where TagID="%s" '%(args['TagID'])
     cur.execute(query)
     rows = cur.fetchall()
     res = [format_datum_row(row) for row in rows]
+    #cur.close()
+    if len(res) == 0:
+        query = 'select * from sensorDatum where TagID="%s" order by rT desc limit 1'%(args['TagID'])
+    	#cur = g.db.cursor(DictCursor)
+        cur.execute(query)
+        rows = cur.fetchall()
+        res = [format_datum_row(row) for row in rows]
+
     cur.close()
     return ResponseExt(res)
 

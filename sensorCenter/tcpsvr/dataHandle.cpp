@@ -502,6 +502,7 @@ bool CDataHandle::storeDB(int fd, sDEVICE_REPORT* report)
                         bat, oV, tV, hV, pV, fV ); 
     //cout << szV << endl;
 
+    db.replaceRow("latestRecord", string(szV));
     return (0 == db.insertRow("sensorDatum",string(szV)));
 }   
 

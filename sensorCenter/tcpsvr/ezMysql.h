@@ -77,6 +77,7 @@ class CEzMysqlDB
         int createTable(const string& tabName, const string& schema );
 
         int insertRow(const string& tabName, const string& values);
+        int replaceRow(const string& tabName, const string& values);
 
         unsigned long escape_string(char *to, const char *from, unsigned long length);
 

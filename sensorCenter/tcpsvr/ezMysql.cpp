@@ -272,6 +272,16 @@ int CEzMysqlDB::insertRow(const string& tabName, const string& values)
     return mysql_real_query(_conn, cmd.c_str(), cmd.size());  
 }
 
+int CEzMysqlDB::replaceRow(const string& tabName, const string& values)
+{
+    if (NULL == _conn)
+        return -1;
+
+    string cmd("REPLACE INTO ");
+    cmd = cmd + tabName + " VALUES" + values;
+    //cout << cmd << "\n";
+    return mysql_real_query(_conn, cmd.c_str(), cmd.size());  
+}
 
 
 #if 0 //BT

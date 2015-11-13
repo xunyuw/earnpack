@@ -19,6 +19,19 @@ CREATE TABLE IF NOT EXISTS `sensors` (
     `UserID` char(16)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='sensor own info';
 
+CREATE TABLE IF NOT EXISTS `latestRecord` (
+    `TagID` varchar(16) NOT NULL PRIMARY KEY,
+    `RSSI`  varchar(16) DEFAULT '', 
+    `vList` varchar(16) DEFAULT '', 
+    `Bat`  smallint DEFAULT '0', 
+    `oV`   smallint DEFAULT '0', 
+    `tV`   smallint DEFAULT '0', 
+    `hV`   smallint DEFAULT '0', 
+    `pV`   smallint DEFAULT '0', 
+    `fV`   smallint DEFAULT '0', 
+    `rT`   TIMESTAMP not null
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='user info';
+
 CREATE TABLE IF NOT EXISTS `sensorDatum` (
     `TagID` varchar(16) NOT NULL,
     `RSSI`  varchar(16) DEFAULT '', 
@@ -32,7 +45,6 @@ CREATE TABLE IF NOT EXISTS `sensorDatum` (
     `rT`   TIMESTAMP not null
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='user info';
 
-DROP TABLE IF EXISTS `irInfo`;
 CREATE TABLE IF NOT EXISTS `irInfo` (
     `UserID` char(16),
     `TagID`  char(16),
