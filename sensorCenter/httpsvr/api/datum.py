@@ -53,13 +53,17 @@ def getTagInfoByUser():
     #query = 'select * from sensorDatum where TagID in \
     #        (select TagID from sensors where UserID="%s") \
     #        group by TagID'%(args['UserID'])
-    query = 'select * from (select * from sensorDatum ' \
-            'where TagID in (select TagID from sensors ' \
-            'where UserID=%s) order by rT desc) ' \
-            'as x group by TagID'%(args['UserID'])
-    #print query
+    query = 'select * from latestRecord where TagID in \
+            (select TagID from sensors where UserID=%s)'%(args['UserID'])
     cur.execute(query)
     rows = cur.fetchall()
+    if len(rows) == 0:
+    	query = 'select * from (select * from sensorDatum ' \
+    	        'where TagID in (select TagID from sensors ' \
+    	        'where UserID=%s) order by rT desc) ' \
+    	        'as x group by TagID'%(args['UserID'])
+    	cur.execute(query)
+    	rows = cur.fetchall()
     res = [format_datum_row(row) for row in rows]
     cur.close()
     return ResponseExt(res)
