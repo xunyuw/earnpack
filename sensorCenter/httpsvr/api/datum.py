@@ -33,7 +33,7 @@ def getTagInfoByID():
     #cur.close()
     if len(res) == 0:
         query = 'select * from sensorDatum where TagID="%s" order by rT desc limit 1'%(args['TagID'])
-    	#cur = g.db.cursor(DictCursor)
+        #cur = g.db.cursor(DictCursor)
         cur.execute(query)
         rows = cur.fetchall()
         res = [format_datum_row(row) for row in rows]
@@ -58,12 +58,12 @@ def getTagInfoByUser():
     cur.execute(query)
     rows = cur.fetchall()
     if len(rows) == 0:
-    	query = 'select * from (select * from sensorDatum ' \
-    	        'where TagID in (select TagID from sensors ' \
-    	        'where UserID=%s) order by rT desc) ' \
-    	        'as x group by TagID'%(args['UserID'])
-    	cur.execute(query)
-    	rows = cur.fetchall()
+        query = 'select * from (select * from sensorDatum ' \
+                'where TagID in (select TagID from sensors ' \
+                'where UserID=%s) order by rT desc) ' \
+                'as x group by TagID'%(args['UserID'])
+        cur.execute(query)
+        rows = cur.fetchall()
     res = [format_datum_row(row) for row in rows]
     cur.close()
     return ResponseExt(res)
@@ -81,10 +81,10 @@ def getTagChartData():
 
     try:
         cur = g.db.cursor()
-        query = 'select avg(oV), avg(tV), avg(hV), avg(pV), avg(fV), rT from sensorDatum ' \
+        query = 'select avg(oV), avg(tV), avg(hV), avg(pV), avg(fV), rT from sensorDatum%s ' \
                 'where TagID = "%s" and rT >  "%s" and rT < "%s" ' \
                 'group by ROUND(UNIX_TIMESTAMP(rT) / %d) '\
-                %(args['TagID'], args['bTime'], args['eTime'], int(args['avgTime'])*60 )
+                %(args['TagID'][-1], args['TagID'], args['bTime'], args['eTime'], int(args['avgTime'])*60 )
         print query
         cur.execute(query)
         rows = cur.fetchall()

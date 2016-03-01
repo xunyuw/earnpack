@@ -503,7 +503,7 @@ bool CDataHandle::storeDB(int fd, sDEVICE_REPORT* report)
     //cout << szV << endl;
 
     db.replaceRow("latestRecord", string(szV));
-    return (0 == db.insertRow("sensorDatum",string(szV)));
+    return (0 == db.insertRow("sensorDatum"+strTag.back(),string(szV)));
 }   
 
 bool CDataHandle::handle_ir_pkt(int fd, S_IR_Packet* buf)

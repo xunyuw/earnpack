@@ -45,6 +45,214 @@ CREATE TABLE IF NOT EXISTS `sensorDatum` (
     `rT`   TIMESTAMP not null
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='user info';
 
+CREATE TABLE IF NOT EXISTS `sensorDatum0` (
+    `TagID` varchar(16) NOT NULL,
+    `RSSI`  varchar(16) DEFAULT '', 
+    `vList` varchar(16) DEFAULT '', 
+    `Bat`  smallint DEFAULT '0', 
+    `oV`   smallint DEFAULT '0', 
+    `tV`   smallint DEFAULT '0', 
+    `hV`   smallint DEFAULT '0', 
+    `pV`   smallint DEFAULT '0', 
+    `fV`   smallint DEFAULT '0', 
+    `rT`   TIMESTAMP not null
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='user info';
+
+CREATE TABLE IF NOT EXISTS `sensorDatum1` (
+    `TagID` varchar(16) NOT NULL,
+    `RSSI`  varchar(16) DEFAULT '', 
+    `vList` varchar(16) DEFAULT '', 
+    `Bat`  smallint DEFAULT '0', 
+    `oV`   smallint DEFAULT '0', 
+    `tV`   smallint DEFAULT '0', 
+    `hV`   smallint DEFAULT '0', 
+    `pV`   smallint DEFAULT '0', 
+    `fV`   smallint DEFAULT '0', 
+    `rT`   TIMESTAMP not null
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='user info';
+
+CREATE TABLE IF NOT EXISTS `sensorDatum2` (
+    `TagID` varchar(16) NOT NULL,
+    `RSSI`  varchar(16) DEFAULT '', 
+    `vList` varchar(16) DEFAULT '', 
+    `Bat`  smallint DEFAULT '0', 
+    `oV`   smallint DEFAULT '0', 
+    `tV`   smallint DEFAULT '0', 
+    `hV`   smallint DEFAULT '0', 
+    `pV`   smallint DEFAULT '0', 
+    `fV`   smallint DEFAULT '0', 
+    `rT`   TIMESTAMP not null
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='user info';
+
+CREATE TABLE IF NOT EXISTS `sensorDatum3` (
+    `TagID` varchar(16) NOT NULL,
+    `RSSI`  varchar(16) DEFAULT '', 
+    `vList` varchar(16) DEFAULT '', 
+    `Bat`  smallint DEFAULT '0', 
+    `oV`   smallint DEFAULT '0', 
+    `tV`   smallint DEFAULT '0', 
+    `hV`   smallint DEFAULT '0', 
+    `pV`   smallint DEFAULT '0', 
+    `fV`   smallint DEFAULT '0', 
+    `rT`   TIMESTAMP not null
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='user info';
+
+CREATE TABLE IF NOT EXISTS `sensorDatum4` (
+    `TagID` varchar(16) NOT NULL,
+    `RSSI`  varchar(16) DEFAULT '', 
+    `vList` varchar(16) DEFAULT '', 
+    `Bat`  smallint DEFAULT '0', 
+    `oV`   smallint DEFAULT '0', 
+    `tV`   smallint DEFAULT '0', 
+    `hV`   smallint DEFAULT '0', 
+    `pV`   smallint DEFAULT '0', 
+    `fV`   smallint DEFAULT '0', 
+    `rT`   TIMESTAMP not null
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='user info';
+
+CREATE TABLE IF NOT EXISTS `sensorDatum5` (
+    `TagID` varchar(16) NOT NULL,
+    `RSSI`  varchar(16) DEFAULT '', 
+    `vList` varchar(16) DEFAULT '', 
+    `Bat`  smallint DEFAULT '0', 
+    `oV`   smallint DEFAULT '0', 
+    `tV`   smallint DEFAULT '0', 
+    `hV`   smallint DEFAULT '0', 
+    `pV`   smallint DEFAULT '0', 
+    `fV`   smallint DEFAULT '0', 
+    `rT`   TIMESTAMP not null
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='user info';
+
+CREATE TABLE IF NOT EXISTS `sensorDatum6` (
+    `TagID` varchar(16) NOT NULL,
+    `RSSI`  varchar(16) DEFAULT '', 
+    `vList` varchar(16) DEFAULT '', 
+    `Bat`  smallint DEFAULT '0', 
+    `oV`   smallint DEFAULT '0', 
+    `tV`   smallint DEFAULT '0', 
+    `hV`   smallint DEFAULT '0', 
+    `pV`   smallint DEFAULT '0', 
+    `fV`   smallint DEFAULT '0', 
+    `rT`   TIMESTAMP not null
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='user info';
+
+CREATE TABLE IF NOT EXISTS `sensorDatum7` (
+    `TagID` varchar(16) NOT NULL,
+    `RSSI`  varchar(16) DEFAULT '', 
+    `vList` varchar(16) DEFAULT '', 
+    `Bat`  smallint DEFAULT '0', 
+    `oV`   smallint DEFAULT '0', 
+    `tV`   smallint DEFAULT '0', 
+    `hV`   smallint DEFAULT '0', 
+    `pV`   smallint DEFAULT '0', 
+    `fV`   smallint DEFAULT '0', 
+    `rT`   TIMESTAMP not null
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='user info';
+
+CREATE TABLE IF NOT EXISTS `sensorDatum8` (
+    `TagID` varchar(16) NOT NULL,
+    `RSSI`  varchar(16) DEFAULT '', 
+    `vList` varchar(16) DEFAULT '', 
+    `Bat`  smallint DEFAULT '0', 
+    `oV`   smallint DEFAULT '0', 
+    `tV`   smallint DEFAULT '0', 
+    `hV`   smallint DEFAULT '0', 
+    `pV`   smallint DEFAULT '0', 
+    `fV`   smallint DEFAULT '0', 
+    `rT`   TIMESTAMP not null
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='user info';
+
+CREATE TABLE IF NOT EXISTS `sensorDatum9` (
+    `TagID` varchar(16) NOT NULL,
+    `RSSI`  varchar(16) DEFAULT '', 
+    `vList` varchar(16) DEFAULT '', 
+    `Bat`  smallint DEFAULT '0', 
+    `oV`   smallint DEFAULT '0', 
+    `tV`   smallint DEFAULT '0', 
+    `hV`   smallint DEFAULT '0', 
+    `pV`   smallint DEFAULT '0', 
+    `fV`   smallint DEFAULT '0', 
+    `rT`   TIMESTAMP not null
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='user info';
+
+CREATE TABLE IF NOT EXISTS `sensorDatumA` (
+    `TagID` varchar(16) NOT NULL,
+    `RSSI`  varchar(16) DEFAULT '', 
+    `vList` varchar(16) DEFAULT '', 
+    `Bat`  smallint DEFAULT '0', 
+    `oV`   smallint DEFAULT '0', 
+    `tV`   smallint DEFAULT '0', 
+    `hV`   smallint DEFAULT '0', 
+    `pV`   smallint DEFAULT '0', 
+    `fV`   smallint DEFAULT '0', 
+    `rT`   TIMESTAMP not null
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='user info';
+
+CREATE TABLE IF NOT EXISTS `sensorDatumB` (
+    `TagID` varchar(16) NOT NULL,
+    `RSSI`  varchar(16) DEFAULT '', 
+    `vList` varchar(16) DEFAULT '', 
+    `Bat`  smallint DEFAULT '0', 
+    `oV`   smallint DEFAULT '0', 
+    `tV`   smallint DEFAULT '0', 
+    `hV`   smallint DEFAULT '0', 
+    `pV`   smallint DEFAULT '0', 
+    `fV`   smallint DEFAULT '0', 
+    `rT`   TIMESTAMP not null
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='user info';
+
+CREATE TABLE IF NOT EXISTS `sensorDatumC` (
+    `TagID` varchar(16) NOT NULL,
+    `RSSI`  varchar(16) DEFAULT '', 
+    `vList` varchar(16) DEFAULT '', 
+    `Bat`  smallint DEFAULT '0', 
+    `oV`   smallint DEFAULT '0', 
+    `tV`   smallint DEFAULT '0', 
+    `hV`   smallint DEFAULT '0', 
+    `pV`   smallint DEFAULT '0', 
+    `fV`   smallint DEFAULT '0', 
+    `rT`   TIMESTAMP not null
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='user info';
+
+CREATE TABLE IF NOT EXISTS `sensorDatumD` (
+    `TagID` varchar(16) NOT NULL,
+    `RSSI`  varchar(16) DEFAULT '', 
+    `vList` varchar(16) DEFAULT '', 
+    `Bat`  smallint DEFAULT '0', 
+    `oV`   smallint DEFAULT '0', 
+    `tV`   smallint DEFAULT '0', 
+    `hV`   smallint DEFAULT '0', 
+    `pV`   smallint DEFAULT '0', 
+    `fV`   smallint DEFAULT '0', 
+    `rT`   TIMESTAMP not null
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='user info';
+
+CREATE TABLE IF NOT EXISTS `sensorDatumE` (
+    `TagID` varchar(16) NOT NULL,
+    `RSSI`  varchar(16) DEFAULT '', 
+    `vList` varchar(16) DEFAULT '', 
+    `Bat`  smallint DEFAULT '0', 
+    `oV`   smallint DEFAULT '0', 
+    `tV`   smallint DEFAULT '0', 
+    `hV`   smallint DEFAULT '0', 
+    `pV`   smallint DEFAULT '0', 
+    `fV`   smallint DEFAULT '0', 
+    `rT`   TIMESTAMP not null
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='user info';
+
+CREATE TABLE IF NOT EXISTS `sensorDatumF` (
+    `TagID` varchar(16) NOT NULL,
+    `RSSI`  varchar(16) DEFAULT '', 
+    `vList` varchar(16) DEFAULT '', 
+    `Bat`  smallint DEFAULT '0', 
+    `oV`   smallint DEFAULT '0', 
+    `tV`   smallint DEFAULT '0', 
+    `hV`   smallint DEFAULT '0', 
+    `pV`   smallint DEFAULT '0', 
+    `fV`   smallint DEFAULT '0', 
+    `rT`   TIMESTAMP not null
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='user info';
+
 CREATE TABLE IF NOT EXISTS `irInfo` (
     `UserID` char(16),
     `TagID`  char(16),
