@@ -1,4 +1,4 @@
- sudo apt-get install -y mysql-server mysql-client
- sudo apt-get install -y libmysqlclient-dev
+ # sudo apt-get install -y mysql-server mysql-client
+ # sudo apt-get install -y libmysqlclient-dev
  sudo apt-get install -y libev-dev
  sudo apt-get install -y build-essential

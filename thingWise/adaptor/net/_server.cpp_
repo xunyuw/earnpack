@@ -1,0 +1,92 @@
+/**
+ *  Server.cpp
+ *
+ *  Test program to start a server application
+ *
+ */
+
+#include <iostream>
+
+#include "../util/common.h"
+#include "../util/logger.h"
+#include "../util/config.h"
+#include "../service/service.h"
+
+
+using namespace std;
+
+/**
+ *  Main program
+ */
+
+
+int main()
+{
+    std::string host;
+    std::string user;
+    std::string pwd;
+    int dbg = 0;
+    //std::string logPri;
+
+    const string conf("/etc/thingWise/config.ini");
+    try
+    {
+        Config settings(conf);
+        host = settings.Read<string>("host");
+        user = settings.Read<string>("user");
+        pwd = settings.Read<string>("passwd");
+        dbg = settings.Read<int>("dbg");
+        //logPri = settings.Read<string>("LogPri");
+    }
+    catch(...)
+    {
+        cout << "config file: " << conf << "NOT exist or invalid settings\n";
+        return -1;
+    }
+
+    if (dbg < 0 || dbg > 5)
+        dbg = static_cast<int>(Logger::OFF);
+
+
+
+    React::MainLoop loop;
+
+    // and a TCP server
+    React::Tcp::Server server(&loop, 3000);
+    server.onConnect([&server]()->bool{
+        /*
+        auto conn = std::make_shared<React::Tcp::Connection>(server);
+        auto pConn = conn.get();
+        cout << "new connect\n";
+
+        auto in = std::make_shared<React::Tcp::In<1024>>(pConn);
+         */
+        auto pConn = new React::Tcp::Connection(server);
+        TRACE("new incoming connction");
+        auto in = new React::Tcp::In<1024>(pConn);
+        in->onData([pConn](const void *buf, size_t size)->bool{
+                TRACE("new message");
+                Service  svc(pConn);
+                svc.Handle(buf, size);
+                return true;
+            });
+
+        in->onLost([pConn, in]()-> void {
+                TRACE("peer disconnect");
+                pConn->close();
+                delete  in;
+                delete  pConn;
+            });
+
+        return true;
+        });
+
+    // run the event loop
+    loop.run();
+
+    // done
+    return 0;
+
+
+}
+
